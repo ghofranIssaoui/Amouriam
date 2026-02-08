@@ -29,7 +29,7 @@
     ],
     "paths": {
       "@/*": ["./*"],
-      "@/models/*": ["./backend/src/models/*"]
+      "@/models/*": ["./models/*"]
     }
   },
   "include": [

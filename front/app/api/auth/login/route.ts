@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/api/dbConnect';
-import User from '@/models/User';
+import mongoose from 'mongoose';
 
+// User schema for frontend API (matches backend schema)
+const UserSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true, select: false },
+  isAdmin: { type: Boolean, default: false }
+}, { timestamps: true });
+
+const User = mongoose.models.UserFrontend || mongoose.model('UserFrontend', UserSchema);
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json();

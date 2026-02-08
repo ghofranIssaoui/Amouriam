@@ -1,6 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
+import { SessionProvider } from 'next-auth/react'
 import { CartProvider } from '@/lib/cart-context'
 import { AuthProvider } from '@/lib/backend-auth'
 import { OrderProvider } from '@/lib/order-context'
@@ -12,14 +13,16 @@ interface ClientLayoutProps {
 
 export default function ClientLayout({ children }: ClientLayoutProps) {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <OrderProvider>
-          <ContactProvider>
-            {children}
-          </ContactProvider>
-        </OrderProvider>
-      </CartProvider>
-    </AuthProvider>
+    <SessionProvider>
+      <AuthProvider>
+        <CartProvider>
+          <OrderProvider>
+            <ContactProvider>
+              {children}
+            </ContactProvider>
+          </OrderProvider>
+        </CartProvider>
+      </AuthProvider>
+    </SessionProvider>
   )
 }

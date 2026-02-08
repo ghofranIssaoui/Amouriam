@@ -1,13 +1,34 @@
 // app/api/user/statistics/route.ts
 import { NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/auth';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/api/dbConnect';
-import User from '@/backend/src/models/User';
-import Order from '@/backend/src/models/Order';
+import mongoose from 'mongoose';
+
+// User schema for frontend API
+const UserSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true, select: false },
+  isAdmin: { type: Boolean, default: false },
+  addresses: [{ type: mongoose.Schema.Types.Mixed }],
+  orders: [{ type: mongoose.Schema.Types.ObjectId, ref: 'OrderFrontend' }]
+}, { timestamps: true });
+
+// Order schema for frontend API
+const OrderSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'UserFrontend', required: true },
+  total: { type: Number, required: true },
+  status: { type: String, required: true, enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'] },
+  items: [{ type: mongoose.Schema.Types.Mixed }]
+}, { timestamps: true });
+
+const User = mongoose.models.UserFrontend || mongoose.model('UserFrontend', UserSchema);
+const Order = mongoose.models.OrderFrontend || mongoose.model('OrderFrontend', OrderSchema);
 
 export async function GET() {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
       return NextResponse.json(
