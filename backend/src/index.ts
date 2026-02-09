@@ -1,4 +1,4 @@
-// backend/src/index.ts
+// Backend server v2.0 - CORS Fixed
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
