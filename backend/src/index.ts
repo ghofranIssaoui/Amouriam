@@ -15,6 +15,7 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
+// ✅ Allowed origins
 const allowedOrigins = [
   "https://amouriam.vercel.app",
   "http://localhost:3000",
@@ -23,16 +24,22 @@ const allowedOrigins = [
 const app = express();
 const httpServer = createServer(app);
 
-// ✅ CORS — ONCE ONLY
+// =======================
+// CORS FIXED
+// =======================
 app.use(
   cors({
     origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // Postman / server-side
+      // Allow requests with no origin (like Postman or server-to-server)
+      if (!origin) return callback(null, true);
+
+      // Allow only specific origins
       if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
+        return callback(null, true);
       }
+
+      // Otherwise, block
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
   })
@@ -42,11 +49,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // =======================
-// Socket.IO (NO EXTRA CORS)
+// Socket.IO
 // =======================
 const io = new Server(httpServer, {
   cors: {
-    origin: allowedOrigins,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   },
 });
@@ -90,6 +103,9 @@ app.get("/api/test", (req, res) => {
   res.json({ message: "Backend is working!" });
 });
 
+// =======================
+// Start Server
+// =======================
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
