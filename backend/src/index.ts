@@ -1,6 +1,6 @@
 // index.js — Backend server (CORS FIXED + PRODUCTION READY)
 
-import express from "express";
+import express, { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -101,7 +101,7 @@ app.get("/api/test", (req, res) => {
 // =======================
 // ✅ Error Handler
 // =======================
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
   res.status(500).json({ error: "Something went wrong" });
 });
