@@ -19,7 +19,7 @@ export default function Home() {
         
         // Test basic API connection first
         console.log('Testing API connection...');
-        const testResponse = await fetch('http://localhost:5000/api/test');
+        const testResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/test`);
         const testData = await testResponse.json();
         console.log('API test response:', testData);
         

@@ -97,7 +97,7 @@ export default function OrdersPage() {
     if (!user) return;
 
     console.log('Connecting to Socket.IO...');
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io(process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000');
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
@@ -292,7 +292,7 @@ export default function OrdersPage() {
               onClick={() => {
                 const testOrder = orders[0];
                 console.log('Testing status change for order:', testOrder);
-                fetch(`http://localhost:5000/api/orders/${testOrder._id}`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${testOrder._id}`, {
                   method: 'PUT',
                   headers: {
                     'Content-Type': 'application/json',

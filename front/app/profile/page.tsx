@@ -223,7 +223,7 @@ function OverviewTab({ user }: { user: any }) {
     const fetchUserStats = async () => {
       try {
         setStats(prev => ({ ...prev, isLoading: true, error: null }));
-        const response = await fetch('/api/user/statistics');
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user/statistics`);
         const data = await response.json();
         
         // Always handle the response, even if not OK, as we return 200 with default values
@@ -376,7 +376,7 @@ function OrdersTab() {
         
         console.log('Fetching orders with token:', token);
         
-        const response = await fetch('/api/orders', {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

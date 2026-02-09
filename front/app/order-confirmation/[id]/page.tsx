@@ -70,7 +70,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
 
   // Socket.IO connection for real-time updates
   useEffect(() => {
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io(process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000');
     setSocket(newSocket);
 
     // Listen for order status changes

@@ -184,7 +184,7 @@ const handleConfirmOrder = async (confirmedOrderData: any) => {
 
     // Verify token is valid by checking user session
     try {
-      const authResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000'}/api/auth/me`, {
+      const authResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -236,10 +236,7 @@ const handleConfirmOrder = async (confirmedOrderData: any) => {
 
     console.log('Sending order data:', JSON.stringify(orderData, null, 2));
     
-    const envUrl = process.env.NEXT_PUBLIC_API_URL;
-    console.log('NEXT_PUBLIC_API_URL:', envUrl);
-    
-    const apiUrl = envUrl?.replace('/api', '') || 'http://localhost:5000';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
     const fullUrl = `${apiUrl}/api/orders`;
     console.log('API URL after replace:', apiUrl);
     console.log('Final Order API URL:', fullUrl);

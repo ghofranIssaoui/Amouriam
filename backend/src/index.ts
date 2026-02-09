@@ -17,20 +17,21 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/amourium';
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
+const ALLOWED_ORIGINS = CLIENT_URL.split(',').map(url => url.trim());
 
 // Create Express application
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: CLIENT_URL,
+    origin: ALLOWED_ORIGINS,
     methods: ["GET", "POST"]
   }
 });
 
 // Middleware
 app.use(cors({
-  origin: CLIENT_URL,
+  origin: ALLOWED_ORIGINS,
   credentials: true
 }));
 

@@ -32,7 +32,7 @@ export default function AdminPage() {
   // Fetch all orders from backend
   const fetchAllOrders = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/orders/admin/all', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/admin/all`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         }
@@ -52,7 +52,7 @@ export default function AdminPage() {
   // Fetch all users from backend
   const fetchAllUsers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/orders/users/all', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/users/all`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         }
@@ -72,7 +72,7 @@ export default function AdminPage() {
   // Fetch all messages from backend
   const fetchAllMessages = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/messages/all', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/messages/all`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
         }
@@ -92,7 +92,7 @@ export default function AdminPage() {
   // Fetch all products from backend
   const fetchAllProducts = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/products');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`);
       
       if (response.ok) {
         const data = await response.json();
@@ -110,7 +110,7 @@ export default function AdminPage() {
     e.preventDefault();
     
     try {
-      const response = await fetch('http://localhost:5000/api/products', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ export default function AdminPage() {
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/orders/${orderId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
