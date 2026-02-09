@@ -15,7 +15,6 @@ dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
-// ✅ Allowed origins
 const allowedOrigins = [
   "https://amouriam.vercel.app",
   "http://localhost:3000",
@@ -24,41 +23,30 @@ const allowedOrigins = [
 const app = express();
 const httpServer = createServer(app);
 
-// =======================
-// CORS FIXED
-// =======================
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like Postman or server-to-server)
-      if (!origin) return callback(null, true);
-
-      // Allow only specific origins
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      // Otherwise, block
-      callback(new Error(`Origin ${origin} not allowed by CORS`));
-    },
-    credentials: true,
-  })
-);
+// ======= CORS =======
+// SINGLE origin dynamically selected
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin); // ONLY ONE origin
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  // Preflight request
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// =======================
-// Socket.IO
-// =======================
+// ======= Socket.IO =======
 const io = new Server(httpServer, {
   cors: {
     origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+      else callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   },
@@ -70,9 +58,7 @@ io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 });
 
-// =======================
-// MongoDB Atlas
-// =======================
+// ======= MongoDB =======
 const mongoUri = process.env.MONGODB_URI;
 if (!mongoUri) {
   console.error("❌ MONGODB_URI environment variable is not defined");
@@ -87,25 +73,19 @@ mongoose
     process.exit(1);
   });
 
-// =======================
-// Routes
-// =======================
+// ======= Routes =======
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/messages", messageRoutes);
 
-// =======================
-// Test
-// =======================
+// ======= Test =======
 app.get("/api/test", (req, res) => {
   res.json({ message: "Backend is working!" });
 });
 
-// =======================
-// Start Server
-// =======================
+// ======= Start Server =======
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
