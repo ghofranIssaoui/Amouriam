@@ -24,17 +24,18 @@ const app = express();
 const httpServer = createServer(app);
 
 // ======= CORS =======
-// SINGLE origin dynamically selected
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin); // ONLY ONE origin
+    res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
     res.setHeader("Access-Control-Allow-Credentials", "true");
   }
-  // Preflight request
-  if (req.method === "OPTIONS") return res.sendStatus(204);
+  // Handle preflight
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
   next();
 });
 
@@ -44,10 +45,7 @@ app.use(express.urlencoded({ extended: true }));
 // ======= Socket.IO =======
 const io = new Server(httpServer, {
   cors: {
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
-      else callback(new Error("Not allowed by CORS"));
-    },
+    origin: allowedOrigins, // Simplified - accepts array directly
     credentials: true,
   },
 });
