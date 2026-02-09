@@ -1,121 +1,117 @@
-// Backend server v2.0 - CORS Fixed
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import mongoose from 'mongoose';
-import { createServer } from 'http';
-import { Server } from 'socket.io';
-import authRoutes from './routes/auth';
-import productRoutes from './routes/product.routes';
-import orderRoutes from './routes/order.routes';
-import cartRoutes from './routes/cart.routes';
-import messageRoutes from './routes/message.routes';
+// index.js — Backend server (CORS FIXED + PRODUCTION READY)
 
-// Load environment variables
+import express, { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+import { createServer } from "http";
+import { Server } from "socket.io";
+
+// Routes
+import authRoutes from "./routes/auth.js";
+import productRoutes from "./routes/product.routes.js";
+import orderRoutes from "./routes/order.routes.js";
+import cartRoutes from "./routes/cart.routes.js";
+import messageRoutes from "./routes/message.routes.js";
+
+// Load env variables
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/amourium';
-const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:3000';
-const ALLOWED_ORIGINS = CLIENT_URL.split(',').map(url => url.trim());
-const allowedOrigins = [
-  "https://amouriam.vercel.app",
-  "http://localhost:3000"
-];
-// Create Express application
+const MONGODB_URI = process.env.MONGODB_URI;
+
+// ✅ FRONTEND URL (Vercel)
+const ALLOWED_ORIGIN = "https://amouriam.vercel.app";
+
+// App & server
 const app = express();
 const httpServer = createServer(app);
-const io = new Server(httpServer, {
-  cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
-    credentials: true
-  }
-});
 
-// Middleware
-
+// =======================
+// ✅ CORS (Express)
+// =======================
 app.use(
   cors({
-    origin: function (origin, callback) {
-      if (!origin) return callback(null, true); // Postman / Server-to-server
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true
+    origin: ALLOWED_ORIGIN,
+    credentials: true,
   })
 );
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Connect to MongoDB with retry logic
-const connectWithRetry = () => {
-  mongoose.connect(MONGODB_URI)
-    .then(() => console.log('Successfully connected to MongoDB'))
-    .catch(err => {
-      console.error('MongoDB connection error:', err);
-      console.log('Retrying connection in 5 seconds...');
-      setTimeout(connectWithRetry, 5000);
-    });
-};
+// =======================
+// ✅ Socket.IO
+// =======================
+const io = new Server(httpServer, {
+  cors: {
+    origin: ALLOWED_ORIGIN,
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
-connectWithRetry();
+// Make io accessible in routes
+app.set("io", io);
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
 
-  // Join user to their own room for personal notifications
-  socket.on('joinUserRoom', (userId) => {
+  socket.on("joinUserRoom", (userId) => {
     socket.join(`user_${userId}`);
-    console.log(`User ${userId} joined their room`);
+    console.log(`User ${userId} joined room`);
   });
 
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected:", socket.id);
   });
 });
 
-// Make io instance available to routes
-app.set('io', io);
+// =======================
+// ✅ MongoDB Connection
+// =======================
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => {
+    console.error("MongoDB error:", err);
+    process.exit(1);
+  });
 
-// Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/cart', cartRoutes);
-app.use('/api/messages', messageRoutes);
+// =======================
+// ✅ Routes
+// =======================
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/orders", orderRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/messages", messageRoutes);
 
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to Amourium API' });
+// =======================
+// ✅ Test Routes
+// =======================
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to Amourium API" });
 });
 
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: 'Backend is working!' });
+app.get("/api/test", (req, res) => {
+  res.json({ message: "Backend is working!" });
 });
 
-// Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+// =======================
+// ✅ Error Handler
+// =======================
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(500).json({ error: "Something went wrong" });
 });
 
-// Start the server
+// =======================
+// ✅ Start Server
+// =======================
 httpServer.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`CORS-enabled for ${CLIENT_URL}`);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err: Error) => {
-  console.error('Unhandled Rejection:', err);
-  httpServer.close(() => process.exit(1));
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`✅ CORS allowed for ${ALLOWED_ORIGIN}`);
 });
 
 export default app;
