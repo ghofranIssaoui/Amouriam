@@ -1,6 +1,6 @@
-// index.js — Backend server (CORS FIXED + PRODUCTION READY)
+// index.js — FINAL DEBUG VERSION (OPEN CORS)
 
-import express, { Request, Response, NextFunction, ErrorRequestHandler } from "express";
+import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -14,44 +14,28 @@ import orderRoutes from "./routes/order.routes.js";
 import cartRoutes from "./routes/cart.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 
-// Load env variables
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
 
-// ✅ FRONTEND URL (Vercel)
-const ALLOWED_ORIGIN = "https://amouriam.vercel.app";
-
-// App & server
+// =======================
+// App & Server
+// =======================
 const app = express();
 const httpServer = createServer(app);
 
 // =======================
-// ✅ CORS (Express)
+// 🔥 OPEN CORS (TEMP FIX)
 // =======================
-app.use(
-  cors({
-    origin: ALLOWED_ORIGIN,
-    credentials: true,
-  })
-);
-
+app.use(cors()); // <-- IMPORTANT
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // =======================
-// ✅ Socket.IO
+// Socket.IO (NO CORS HERE)
 // =======================
-const io = new Server(httpServer, {
-  cors: {
-    origin: ALLOWED_ORIGIN,
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
-
-// Make io accessible in routes
+const io = new Server(httpServer);
 app.set("io", io);
 
 io.on("connection", (socket) => {
@@ -59,7 +43,6 @@ io.on("connection", (socket) => {
 
   socket.on("joinUserRoom", (userId) => {
     socket.join(`user_${userId}`);
-    console.log(`User ${userId} joined room`);
   });
 
   socket.on("disconnect", () => {
@@ -68,18 +51,23 @@ io.on("connection", (socket) => {
 });
 
 // =======================
-// ✅ MongoDB Connection
+// MongoDB
 // =======================
+if (!MONGODB_URI) {
+  console.error("❌ MONGODB_URI is not defined in environment variables");
+  process.exit(1);
+}
+
 mongoose
   .connect(MONGODB_URI)
-  .then(() => console.log("MongoDB connected"))
+  .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => {
-    console.error("MongoDB error:", err);
+    console.error("❌ MongoDB error:", err);
     process.exit(1);
   });
 
 // =======================
-// ✅ Routes
+// Routes
 // =======================
 app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
@@ -88,7 +76,7 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/messages", messageRoutes);
 
 // =======================
-// ✅ Test Routes
+// Test Routes
 // =======================
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Amourium API" });
@@ -99,19 +87,18 @@ app.get("/api/test", (req, res) => {
 });
 
 // =======================
-// ✅ Error Handler
+// Error Handler
 // =======================
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err);
-  res.status(500).json({ error: "Something went wrong" });
+  res.status(500).json({ error: "Server error" });
 });
 
 // =======================
-// ✅ Start Server
+// Start Server
 // =======================
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`✅ CORS allowed for ${ALLOWED_ORIGIN}`);
 });
 
 export default app;
