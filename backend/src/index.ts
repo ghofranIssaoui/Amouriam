@@ -25,13 +25,15 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: ALLOWED_ORIGINS,
-    methods: ["GET", "POST"]
+    methods: ["GET", "POST"],
+    credentials: true
   }
 });
 
 // Middleware
 app.use(cors({
   origin: ALLOWED_ORIGINS,
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 
