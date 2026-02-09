@@ -18,7 +18,7 @@ export interface Product {
 export const getProducts = async (): Promise<Product[]> => {
   try {
     console.log('Fetching products from API...');
-    const response = await fetchFromApi('/api/products'); // <-- add /api
+    const response = await fetchFromApi('/api/products');
     console.log('API response:', response);
     return response || [];
   } catch (error) {
@@ -31,12 +31,23 @@ export const getProductById = async (id: string): Promise<Product | null> => {
   if (!id) {
     console.error('No ID provided to getProductById');
   }
-
+  
   try {
-    console.log('Making API call to:', `/api/products/${id}`); // <-- add /api
+    console.log('Making API call to:', `/products/${id}`);
     const response = await fetchFromApi(`/api/products/${id}`);
+    
+    
+    // Log the response for debugging
     console.log('API Response:', response);
-    return response || null;
+    
+    // The response is already parsed by fetchFromApi
+    if (response) {
+      console.log('Product data:', response);
+      return response;
+    }
+
+    console.log(`No product found with ID: ${id}`);
+    return null;
   } catch (error) {
     console.error('Error in getProductById:', error);
     return null;
