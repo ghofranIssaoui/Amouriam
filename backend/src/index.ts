@@ -16,7 +16,7 @@ dotenv.config();
 const PORT = process.env.PORT || 5000;
 
 const allowedOrigins = [
-  "https://amouriam.vercel.app",
+  "https://amouriam-abcu.vercel.app",
   "http://localhost:3000",
 ];
 
