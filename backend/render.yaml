@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: amourium-backend
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://ghofranissaoui83_db_user:A7vYSPsbkNMWqNOY@cluster0.5dpatq2.mongodb.net/Amourium?appName=Cluster0
+      - key: JWT_SECRET
+        value: your-super-secret-jwt-key-change-for-production
+      - key: NEXTAUTH_SECRET
+        value: any-secret-string-here-change-for-production
+      - key: NEXTAUTH_URL
+        value: https://amouriam.vercel.app
+      - key: CLIENT_URL
+        value: https://amouriam.vercel.app,http://localhost:3000

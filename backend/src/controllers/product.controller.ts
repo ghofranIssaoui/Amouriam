@@ -13,7 +13,7 @@ export const getProducts = async (req: Request, res: Response) => {
 
 export const getProductById = async (req: Request, res: Response) => {
   try {
-    const product = await Product.findOne({ id: req.params.id });
+    const product = await Product.findOne({ _id: req.params.id });
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -37,7 +37,6 @@ export const createProduct = async (req: Request, res: Response) => {
     
     // Create new product with all required fields
     const newProduct = new Product({
-      id: name.toLowerCase().replace(/\s+/g, '-'), // Generate ID from name
       name,
       type: 'powder', // Default type
       price: parseFloat(price),
@@ -73,7 +72,6 @@ export const seedProducts = async (req: Request, res: Response) => {
     // Sample products data
     const sampleProducts: Partial<IProduct>[] = [
       {
-        id: 'SolVital',
         name: 'SolVital',
         type: 'powder',
         price: 2.9,
@@ -92,7 +90,6 @@ export const seedProducts = async (req: Request, res: Response) => {
         image: '/products/123.jpeg'
       },
       {
-        id: 'Jasmora',
         name: 'Jasmora',
         type: 'liquid',
         price: 19.9,
