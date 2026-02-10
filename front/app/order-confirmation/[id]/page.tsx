@@ -28,7 +28,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
         } else {
           // If not found locally, fetch from database
            const token = localStorage.getItem('auth_token');
-          const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/orders/${id}`;
+          const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/api/orders/${id}`;
           console.log('Order confirmation - API URL:', apiUrl);
           console.log('Order confirmation - NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
           const response = await fetch(apiUrl, {
