@@ -27,7 +27,12 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
           setOrder(localOrder);
         } else {
           // If not found locally, fetch from database
-          const response = await fetch(`/api/orders/${id}`);
+          const token = localStorage.getItem('auth_token');
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders/${id}`, {
+            headers: {
+              'Authorization': token ? `Bearer ${token}` : ''
+            }
+          });
           if (response.ok) {
             const orderData = await response.json();
             setOrder(orderData);
