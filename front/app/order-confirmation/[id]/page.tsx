@@ -216,9 +216,12 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
                   <span className="text-foreground font-medium">Date de Commande:</span>{' '}
                   {new Date(order.createdAt).toLocaleDateString()}
                 </p>
-                <p>
+              <p>
                   <span className="text-foreground font-medium">Méthode de Paiement:</span>{' '}
-                  {order.paymentMethod}
+                  {order.paymentMethod === 'credit_card' ? 'Carte de Crédit' : 
+                   order.paymentMethod === 'cash_on_delivery' ? 'Paiement à la Livraison' :
+                   order.paymentMethod === 'bank_transfer' ? 'Virement Bancaire' :
+                   order.paymentMethod || 'Non spécifiée'}
                 </p>
               </div>
             </div>
@@ -244,7 +247,7 @@ export default function OrderConfirmationPage({ params }: { params: Promise<{ id
           <div className="space-y-2 text-right">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Sous-total</span>
-              <span className="text-foreground">{(order.total - 7000).toLocaleString('fr-TN')} DT</span>
+              <span className="text-foreground">{order.items?.reduce((sum: number, item: any) => sum + (item.price || 0), 0).toLocaleString('fr-TN')} DT</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Taxe</span>
